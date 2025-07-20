@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GLQ - Great Learning Quiz Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .title {
+            font-family: Arial, sans-serif;
+            font-size: 3.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #4b5563;
+            font-weight: 600;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .upload-section {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border: 2px solid #3b82f6;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
+            transition: all 0.3s ease;
+            animation: fadeIn 1s ease-out 0.2s both;
+        }
+
+        .upload-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.15);
+        }
+
+        .upload-area {
+            border: 2px dashed #3b82f6;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .upload-area:hover,
+        .upload-area.drag-over {
+            border-color: #1e40af;
+            background: rgba(59, 130, 246, 0.1);
+            transform: scale(1.01);
+        }
+
+        .rocket {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .upload-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .upload-btn:hover::before {
+            animation: shine 1s ease-in-out;
+        }
+
+        .overview-section {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            animation: fadeIn 1s ease-out 0.4s both;
+        }
+
+        .overview-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .overview-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .overview-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .overview-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .overview-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .overview-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .analysis-box {
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            height: 300px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            animation: scaleIn 0.6s ease-out;
+        }
+
+        .analysis-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+            border-color: #3b82f6;
+        }
+
+        .box-label {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            z-index: 1;
+        }
+
+        .analysis-header {
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+            padding: 1rem 1rem 1rem 3.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #1e40af;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .analysis-content {
+            padding: 1rem;
+            height: calc(100% - 60px);
+            overflow-y: auto;
+        }
+
+        .analysis-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .analysis-content::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+
+        .analysis-content::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            border-radius: 3px;
+        }
+
+        .student-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .student-card:hover {
+            background: #e2e8f0;
+            transform: translateX(3px);
+        }
+
+        .student-name {
+            font-weight: 600;
+            color: #1e40af;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #9ca3af;
+            font-style: italic;
+            padding: 2rem 1rem;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #dc2626;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .title {
+                font-size: 2.5rem;
+            }
+
+            .overview-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .analysis-box {
+                height: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 2rem;
+            }
+
+            .upload-section {
+                padding: 1.5rem;
+            }
+
+            .overview-section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">GLQ</h1>
+            <p class="subtitle">Great Learning Quiz Analyzer</p>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <div class="rocket">🚀</div>
+                <h3>Upload Your Course Grades</h3>
+                <p>Drag and drop your CSV file here, or click the button below</p>
+            </div>
+            <input type="file" id="fileInput" accept=".csv" style="display: none;">
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                🚀 UPLOAD COURSE GRADES
+            </button>
+            <div id="errorMessage" class="error-message hidden"></div>
+        </div>
+
+        <div id="results">
+            <div class="overview-section">
+                <div class="overview-title">Course Overview</div>
+                <div class="overview-cards" id="overviewCards">
+                    <div class="overview-card">
+                        <div class="overview-icon">👥</div>
+                        <div class="overview-value">125</div>
+                        <div class="overview-label">Total Students</div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="overview-icon">❌</div>
+                        <div class="overview-value">8</div>
+                        <div class="overview-label">Missed All Quizzes</div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="overview-icon">⚠️</div>
+                        <div class="overview-value">15</div>
+                        <div class="overview-label">Failed Penultimate Quiz</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analysis-grid" id="analysisGrid">
+                <div class="analysis-box">
+                    <div class="box-label">A</div>
+                    <div class="analysis-header">
+                        Failed First Quiz (23)
+                    </div>
+                    <div class="analysis-content">
+                        <div class="student-card">
+                            <div class="student-name">Alice Johnson</div>
+                        </div>
+                        <div class="student-card">
+                            <div class="student-name">Bob Smith</div>
+                        </div>
+                        <div class="student-card">
+                            <div class="student-name">Carol Davis</div>
+                        </div>
+                        <div class="student-card">
+                            <div class="student-name">David Wilson</div>
+                        </div>
+                        <div class="student-card">
+                            <div class="student-name">Emma Brown</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analysis-box">
+                    <div class="box-label">B</div>
+                    <div class="analysis-header">
+                        Failed First Two Quizzes (12)
+                    </div>
+                    <div class="analysis-content">
+                        <div class="student-card">
+                            <div class="student-name">Frank Miller</div>
+                        </div>
+                        <div class="student-card">
+                            <div class="student-name">Grace Taylor</div>
+                        </div>
+                        <div class="student-card">
+                            <div class="student-name">Henry Anderson</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analysis-box">
+                    <div class="box-label">C</div>
+                    <div class="analysis-header">
+                        Failed First Three Quizzes (8)
+                    </div>
+                    <div class="analysis-content">
+                        <div class="student-card">
+                            <div class="student-name">Ivy Thomas</div>
+                        </div>
+                        <div class="student-card">
+                            <div class="student-name">Jack Jackson</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analysis-box">
+                    <div class="box-label">D</div>
+                    <div class="analysis-header">
+                        Failed Quiz 1 (23)
+                    </div>
+                    <div class="analysis-content">
+                        <div class="student-card">
+                            <div class="student-name">Katie White</div>
+                        </div>
+                        <div class="student-card">
+                            <div class="student-name">Luke Martin</div>
+                        </div>
+                        <div class="student-card">
+                            <div class="student-name">Maya Garcia</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analysis-box">
+                    <div class="box-label">E</div>
+                    <div class="analysis-header">
+                        Failed Quiz 2 (18)
+                    </div>
+                    <div class="analysis-content">
+                        <div class="student-card">
+                            <div class="student-name">Noah Rodriguez</div>
+                        </div>
+                        <div class="student-card">
+                            <div class="student-name">Olivia Lopez</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analysis-box">
+                    <div class="box-label">F</div>
+                    <div class="analysis-header">
+                        Failed Quiz 3 (14)
+                    </div>
+                    <div class="analysis-content">
+                        <div class="student-card">
+                            <div class="student-name">Peter Hernandez</div>
+                        </div>
+                        <div class="student-card">
+                            <div class="student-name">Quinn Gonzalez</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script>
+        let csvData = null;
+        let students = [];
+        let quizColumns = [];
+
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const errorMessage = document.getElementById('errorMessage');
+        const results = document.getElementById('results');
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+            setTimeout(() => {
+                errorMessage.classList.add('hidden');
+            }, 5000);
+        }
+
+        function handleFile(file) {
+            if (!file.name.toLowerCase().endsWith('.csv')) {
+                showError('Please upload a CSV file.');
+                return;
+            }
+
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                dynamicTyping: true,
+                complete: function(result) {
+                    if (result.errors.length > 0) {
+                        showError('Error parsing CSV file. Please check the format.');
+                        return;
+                    }
+                    
+                    processCSVData(result.data, result.meta.fields);
+                },
+                error: function(error) {
+                    showError('Failed to read the CSV file.');
+                }
+            });
+        }
+
+        function processCSVData(data, fields) {
+            csvData = data;
+            
+            // Find quiz columns that contain "Quiz"
+            quizColumns = fields.filter(field => 
+                field.toLowerCase().includes('quiz')
+            ).sort();
+
+            if (quizColumns.length < 3) {
+                showError('At least 3 quiz columns are required for analysis.');
+                return;
+            }
+
+            // Process student data
+            students = data.map(row => {
+                const student = {
+                    name: row.Student || 'Unknown',
+                    email: row['SIS Login ID'] || 'No email',
+                    quizzes: {}
+                };
+
+                quizColumns.forEach(col => {
+                    student.quizzes[col] = parseFloat(row[col]) || 0;
+                });
+
+                return student;
+            }).filter(student => student.name && student.name !== 'Unknown' && student.name.trim() !== '');
+
+            if (students.length === 0) {
+                showError('No valid student data found in the CSV file.');
+                return;
+            }
+
+            generateAnalysis();
+            results.classList.remove('hidden');
+        }
+
+        function generateAnalysis() {
+            generateOverview();
+            generateAnalysisBoxes();
+        }
+
+        function generateOverview() {
+            const totalStudents = students.length;
+            const allQuizzesZero = students.filter(student => 
+                Object.values(student.quizzes).every(score => score === 0)
+            ).length;
+            
+            // Penultimate quiz (second to last)
+            const penultimateQuiz = quizColumns[quizColumns.length - 2];
+            const penultimateZero = penultimateQuiz ? 
+                students.filter(student => student.quizzes[penultimateQuiz] === 0).length : 0;
+
+            const cards = [
+                { value: totalStudents, label: 'Total Students', icon: '👥' },
+                { value: allQuizzesZero, label: 'Missed All Quizzes', icon: '❌' },
+                { value: penultimateZero, label: 'Failed Penultimate Quiz', icon: '⚠️' }
+            ];
+
+            const overviewCards = document.getElementById('overviewCards');
+            overviewCards.innerHTML = cards.map(card => `
+                <div class="overview-card">
+                    <div class="overview-icon">${card.icon}</div>
+                    <div class="overview-value">${card.value}</div>
+                    <div class="overview-label">${card.label}</div>
+                </div>
+            `).join('');
+        }
+
+        function generateAnalysisBoxes() {
+            const analysisGrid = document.getElementById('analysisGrid');
+            const analyses = [];
+
+            // Sequential failure patterns
+            const firstQuizZero = students.filter(s => s.quizzes[quizColumns[0]] === 0);
+            const firstTwoZero = students.filter(s => 
+                s.quizzes[quizColumns[0]] === 0 && s.quizzes[quizColumns[1]] === 0
+            );
+            const firstThreeZero = students.filter(s => 
+                s.quizzes[quizColumns[0]] === 0 && s.quizzes[quizColumns[1]] === 0 && s.quizzes[quizColumns[2]] === 0
+            );
+
+            analyses.push(
+                { label: 'A', title: 'Failed First Quiz', students: firstQuizZero },
+                { label: 'B', title: 'Failed First Two Quizzes', students: firstTwoZero },
+                { label: 'C', title: 'Failed First Three Quizzes', students: firstThreeZero }
+            );
+
+            // Individual quiz failures
+            quizColumns.forEach((quiz, index) => {
+                const failedStudents = students.filter(s => s.quizzes[quiz] === 0);
+                const label = String.fromCharCode(68 + index); // D, E, F, etc.
+                analyses.push({
+                    label: label,
+                    title: `Failed ${quiz}`,
+                    students: failedStudents
+                });
+            });
+
+            analysisGrid.innerHTML = analyses.map((analysis, index) => `
+                <div class="analysis-box" style="animation-delay: ${index * 0.1}s">
+                    <div class="box-label">${analysis.label}</div>
+                    <div class="analysis-header">
+                        ${analysis.title} (${analysis.students.length})
+                    </div>
+                    <div class="analysis-content">
+                        ${analysis.students.length > 0 ? 
+                            analysis.students.map(student => `
+                                <div class="student-card">
+                                    <div class="student-name">${student.name}</div>
+                                </div>
+                            `).join('') :
+                            '<div class="no-data">No students found</div>'
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
